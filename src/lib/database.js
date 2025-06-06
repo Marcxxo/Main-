@@ -1,5 +1,5 @@
-import firebase from 'firebase/app';
-import 'firebase/firestore'; // Importiere das Firestore-Modul für Side Effects
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   // Hier Ihre Firebase-Konfiguration einfügen
@@ -11,13 +11,13 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore(); // Greife auf Firestore über das initialisierte App-Objekt zu
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export const saveProfile = async (profile) => {
   try {
-    const profileRef = db.collection('profiles').doc(profile.uniqueId);
-    await profileRef.set(profile);
+    const profileRef = doc(db, 'profiles', profile.uniqueId);
+    await setDoc(profileRef, profile);
     return true;
   } catch (error) {
     console.error('Fehler beim Speichern des Profils:', error);
@@ -27,10 +27,10 @@ export const saveProfile = async (profile) => {
 
 export const getProfile = async (uniqueId) => {
   try {
-    const profileRef = db.collection('profiles').doc(uniqueId);
-    const profileSnap = await profileRef.get();
+    const profileRef = doc(db, 'profiles', uniqueId);
+    const profileSnap = await getDoc(profileRef);
     
-    if (profileSnap.exists) {
+    if (profileSnap.exists()) {
       return profileSnap.data();
     } else {
       console.log('Kein Profil gefunden');
