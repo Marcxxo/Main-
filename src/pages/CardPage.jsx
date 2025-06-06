@@ -6,6 +6,7 @@ import { Home, Loader2, ArrowLeft, X } from 'lucide-react';
 import { UserCircle } from 'lucide-react';
 import CardPreview from '@/components/CardPreview';
 import { getVideo } from '@/lib/indexedDB';
+import { getProfile } from '@/lib/database';
 
 const CardPage = () => {
   const { username } = useParams();
@@ -24,22 +25,26 @@ const CardPage = () => {
         setError(null);
         console.log('Lade Profile aus localStorage...');
 
-        let foundProfile = null;
-        const localProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
-        console.log('Gefundene Profile im localStorage:', localProfiles);
-
         // Extrahiere die eindeutige ID aus dem username
         const parts = username ? username.split('_') : ['', '', ''];
-        const uniqueId = parts.slice(-2).join('_'); // Nimm die letzten beiden Teile für die ID
+        const uniqueId = parts.slice(-2).join('_');
         
         console.log('Gesuchter Name und ID:', { uniqueId });
 
-        foundProfile = localProfiles.find(p => p.uniqueId === uniqueId);
-        console.log('Gefundenes Profil (aus localStorage):', foundProfile);
+        // Versuche zuerst, das Profil aus der Datenbank zu laden
+        let foundProfile = await getProfile(uniqueId);
+        console.log('Gefundenes Profil (aus Datenbank):', foundProfile);
+
+        // Falls nicht in der Datenbank, versuche localStorage
+        if (!foundProfile) {
+          const localProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+          foundProfile = localProfiles.find(p => p.uniqueId === uniqueId);
+          console.log('Gefundenes Profil (aus localStorage):', foundProfile);
+        }
 
         if (!foundProfile) {
-           console.warn('Profil NICHT gefunden für:', username);
-           setError(`Profil für "${username}" nicht gefunden.`);
+          console.warn('Profil NICHT gefunden für:', username);
+          setError(`Profil für "${username}" nicht gefunden.`);
         } else {
            console.log('Profil gefunden, lade Medien aus IndexedDB...');
               // Lade Bild-Blob aus IndexedDB

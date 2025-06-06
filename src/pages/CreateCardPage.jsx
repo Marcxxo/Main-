@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Home, Save, Plus, Trash2, User, UserCircle, Briefcase, Info, Phone, Mail, MapPin, Image as ImageIcon, X, Youtube } from 'lucide-react';
 import CardPreview from '@/components/CardPreview';
 import { saveVideo, deleteVideo, getVideo } from '@/lib/indexedDB'; // IndexedDB Funktionen importieren
+import { saveProfile } from '@/lib/database';
 
 const CreateCardPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const CreateCardPage = () => {
     imageId: '',
     videoId: '',
   });
+  const [error, setError] = useState('');
 
   // Effekt 1: Initialdaten laden (Bearbeitungsdaten oder Entwurfsdaten) beim Mounten
   useEffect(() => {
@@ -536,6 +538,46 @@ const CreateCardPage = () => {
   };
   
   const qrCodeUrl = formData.firstName && formData.lastName ? `${window.location.origin}/card/${formData.firstName}_${formData.lastName}` : '';
+
+  const handleSave = async () => {
+    try {
+      // Speichere das Profil in der Datenbank
+      const success = await saveProfile(formData);
+      
+      if (success) {
+        // Speichere auch im localStorage für Offline-Zugriff (userProfiles)
+        const localProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+        const existingLocalIndex = localProfiles.findIndex(p => p.uniqueId === formData.uniqueId);
+        
+        if (existingLocalIndex > -1) {
+          localProfiles[existingLocalIndex] = formData;
+        } else {
+          localProfiles.push(formData);
+        }
+        
+        localStorage.setItem('userProfiles', JSON.stringify(localProfiles));
+        
+        // Füge die neu erstellte Karte zur Liste der kürzlich angesehenen Karten hinzu (recentCards)
+        const recentCards = JSON.parse(localStorage.getItem('recentCards')) || [];
+        // Entferne alle vorherigen Einträge für dieses Profil in recentCards
+        const filteredRecentCards = recentCards.filter(card => card.uniqueId !== formData.uniqueId);
+
+        // Füge den neu erstellten Eintrag (mit type: 'created') am Anfang hinzu
+        filteredRecentCards.unshift({ ...formData, type: 'created' });
+
+        // Begrenze die Liste und speichere sie
+        localStorage.setItem('recentCards', JSON.stringify(filteredRecentCards.slice(0, 10)));
+
+        // Navigiere zur Kartenansicht
+        navigate(`/card/${formData.firstName}_${formData.lastName}_${formData.uniqueId}`);
+      } else {
+        setError('Fehler beim Speichern des Profils');
+      }
+    } catch (error) {
+      console.error('Fehler beim Speichern:', error);
+      setError('Ein Fehler ist beim Speichern aufgetreten');
+    }
+  };
 
   return (
     <motion.div
