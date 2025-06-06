@@ -185,6 +185,8 @@ export default defineConfig({
 	customLogger: logger,
 	plugins: [react(), addTransformIndexHtml],
 	server: {
+		port: 3000,
+		open: true,
 		cors: true,
 		headers: {
 			'Cross-Origin-Embedder-Policy': 'credentialless',
@@ -195,6 +197,17 @@ export default defineConfig({
 		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
 		alias: {
 			'@': path.resolve(__dirname, './src'),
+		},
+	},
+	build: {
+		outDir: 'dist',
+		sourcemap: true,
+		minify: 'terser',
+		terserOptions: {
+			compress: {
+				drop_console: true,
+				drop_debugger: true,
+			},
 		},
 	},
 });
