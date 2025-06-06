@@ -206,6 +206,7 @@ export default defineConfig({
 		sourcemap: true,
 		minify: 'terser',
 		rollupOptions: {
+			external: ['firebase/app', 'firebase/firestore'],
 			output: {
 				entryFileNames: 'assets/[name].js',
 				chunkFileNames: 'assets/[name].js',
