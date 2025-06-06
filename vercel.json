@@ -6,12 +6,27 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "buildCommand": "node ./node_modules/vite/bin/vite.js build",
-        "nodeVersion": "20.19.1"
+        "buildCommand": "vite build"
       }
     }
   ],
   "routes": [
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "Content-Type": "application/javascript"
+      },
+      "continue": true
+    },
+    {
+      "src": "/assets/(.*)\\.css",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "Content-Type": "text/css"
+      },
+      "continue": true
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
