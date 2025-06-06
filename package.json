@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.1"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.0.5",

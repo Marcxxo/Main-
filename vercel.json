@@ -6,7 +6,8 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "buildCommand": "node ./node_modules/vite/bin/vite.js build"
+        "buildCommand": "node ./node_modules/vite/bin/vite.js build",
+        "nodeVersion": "20.19.1"
       }
     }
   ],
