@@ -201,22 +201,19 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'dist',
+		assetsDir: 'assets',
+		emptyOutDir: true,
 		sourcemap: true,
 		minify: 'terser',
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					vendor: ['react', 'react-dom', 'react-router-dom'],
-					ui: ['@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-dialog'],
-				},
-				assetFileNames: (assetInfo) => {
-					if (assetInfo.name.endsWith('.css')) {
-						return 'assets/[name]-[hash][extname]';
-					}
-					return 'assets/[name]-[hash][extname]';
-				},
-				chunkFileNames: 'assets/[name]-[hash].js',
-				entryFileNames: 'assets/[name]-[hash].js',
+				entryFileNames: 'assets/[name].js',
+				chunkFileNames: 'assets/[name].js',
+				assetFileNames: 'assets/[name].[ext]'
+			},
+			manualChunks: {
+				vendor: ['react', 'react-dom', 'react-router-dom'],
+				ui: ['@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-dialog'],
 			},
 		},
 		terserOptions: {
